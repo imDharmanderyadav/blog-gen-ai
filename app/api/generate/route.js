@@ -1,22 +1,9 @@
-/*
- * Install the Generative AI SDK
- *
- * $ npm install @google/generative-ai
- *
- * See the getting started guide for more information
- * https://ai.google.dev/gemini-api/docs/get-started/node
- */
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function GET(request, context) {
   const prompt = request.nextUrl.searchParams.get("prompt");
-  console.log(prompt);
-
-  const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } = require("@google/generative-ai");
+  console.log("Prompt received:", prompt);
 
   const apiKey = process.env.GEMINI_API_KEY;
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -34,23 +21,41 @@ export async function GET(request, context) {
   };
 
   async function run() {
-    const chatSession = model.startChat({
-      generationConfig,
-      // safetySettings: Adjust safety settings
-      // See https://ai.google.dev/gemini-api/docs/safety-settings
-      history: [],
-    });
+    try {
+      const chatSession = model.startChat({
+        generationConfig,
+        history: [],
+      });
 
-    const result = await chatSession.sendMessage("generate the blog 'title' and 'content' in json format for " + prompt + ".the content is use the html tags and tailwindcss' basic class only to decorate text.make sure a content must be a 3000+ words.");
-    // console.log(result.response.text()); // this console is run perfectly
-    return result.response.text(); // Return the result from the function
+      const result = await chatSession.sendMessage(
+        "generate the blog 'title' and 'content' in json format for " +
+          prompt +
+          ". The content should use HTML tags and Tailwind CSS basic classes only to decorate text. Ensure the content is 3000+ words."
+      );
+
+      console.log("Generated response:", result.response.text());
+      return result.response.text(); // This should be a valid JSON string
+
+    } catch (error) {
+      console.error("Error during generation:", error);
+      throw new Error("Failed to generate blog content.");
+    }
   }
 
   try {
-    const responseText = await run(); // Await the result of the run function
-    return NextResponse.json({ "json": responseText }); // Send the response back
+    const responseText = await run();
+
+    // Attempt to parse the response to ensure it's valid JSON
+    try {
+      const parsedResponse = JSON.parse(responseText);
+      return NextResponse.json({ json: parsedResponse });
+    } catch (parseError) {
+      console.error("Failed to parse JSON:", parseError);
+      return NextResponse.json({ error: 'Failed to parse generated content.' });
+    }
+
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'An error occurred' });
+    console.error("API error:", error);
+    return NextResponse.json({ error: 'An error occurred while generating the blog.' });
   }
 }
