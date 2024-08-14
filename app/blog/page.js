@@ -11,11 +11,11 @@ const BlogContent = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        let response = await fetch("/api/generate?prompt=" + prompt);
+        let response = await fetch("/api/generate?prompt="+prompt);
         let data = await response.json();
         setBlog(JSON.parse(data.json));
       } catch (error) {
-        setBlog({title:"",content:"<h1>Error fetching blog....</h1> <br/>Please try again...."});
+        setBlog({title:"",content:"<h1>Error fetching blog.... </h1> <br/>Please try again...."});
         console.error("Error fetching blog:", error);
       }
     };
