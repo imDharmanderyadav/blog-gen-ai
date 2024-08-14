@@ -30,7 +30,7 @@ export async function GET(request, context) {
       const result = await chatSession.sendMessage(
         "generate the blog 'title' and 'content' in json format for " +
           prompt +
-          ". The content should use HTML tags and Tailwind CSS basic classes only to decorate text. Ensure the content is 3000+ words."
+          ". The content should use HTML tags and Tailwind CSS basic classes only to decorate text. Ensure the content is 3000+ words.and also keep in mind never use a newline character."
       );
 
       console.log("Generated response:", result.response.text());
