@@ -13,6 +13,7 @@ const BlogContent = () => {
       try {
         let response = await fetch("/api/generate?prompt="+prompt);
         let data = await response.json();
+        console.log(data);
         setBlog(JSON.parse(data.json));
       } catch (error) {
         setBlog({title:"",content:"<h1>Error fetching blog.... </h1> <br/>Please try again...."});
